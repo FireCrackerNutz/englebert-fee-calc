@@ -99,7 +99,7 @@ footer {
 .inline-container {
     display: flex; /* Ensures the label and button are on the same line */
     align-items: center; /* Vertically aligns the label and button */
-    gap: 8px; /* Adds a small space between the label and button */
+    gap: 2px; /* Adds a small space between the label and button */
     white-space: nowrap; /* Prevents the label text from wrapping */
 }
 
