@@ -1,5 +1,8 @@
+// script.js
+
+// Event listener for the Calculate Fee button
 document.getElementById("calculate-fee").addEventListener("click", function() {
-    // Get the selected values
+    // Retrieve values from the dropdowns
     const baseline = parseFloat(document.getElementById("tokens").value);
     const riskMultiplier = parseFloat(document.getElementById("risk-profile").value);
     const webIncrement = parseFloat(document.getElementById("web-app").value);
@@ -7,12 +10,12 @@ document.getElementById("calculate-fee").addEventListener("click", function() {
     const socialsPresenceIncrement = parseFloat(document.getElementById("socials-presence").value);
     const socialsVolumeIncrement = parseFloat(document.getElementById("socials-volume").value);
 
-    // Calculate the fee
+    // Calculate the estimated fee
     const fee = 
         (baseline * riskMultiplier) +
         (baseline * (webIncrement + emailIncrement)) +
         (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
 
-    // Update the result display
+    // Update the fee display
     document.getElementById("fee-display").innerText = `£${fee.toFixed(2)}`;
 });
