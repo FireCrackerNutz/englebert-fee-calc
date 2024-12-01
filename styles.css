@@ -100,14 +100,15 @@ footer {
     background-color: transparent;
     border: none;
     color: #f4a261;
-    font-size: 1.2rem;
+    font-size: 1rem;
     cursor: pointer;
-    margin-left: 8px; /* Adds spacing between the label and the button */
-    vertical-align: middle; /* Aligns the button with the label text */
+    margin-left: 5px; /* Small space between label and button */
+    vertical-align: middle; /* Align with label text */
+    padding: 0; /* Remove default padding */
 }
 
 .info-button:hover {
-    color: #e08f53; /* Change color on hover for better interactivity */
+    color: #e08f53; /* Slightly darker orange on hover */
 }
 
 
