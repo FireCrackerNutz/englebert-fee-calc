@@ -96,15 +96,19 @@ footer {
 }
 
 /* Style for the info button */
+.inline-container {
+    display: flex;
+    align-items: center; /* Aligns the button vertically with the text */
+    gap: 5px; /* Adds space between the label and the button */
+}
+
 .info-button {
     background-color: transparent;
     border: none;
     color: #f4a261;
     font-size: 1rem;
     cursor: pointer;
-    margin-left: 5px; /* Small space between label and button */
-    vertical-align: middle; /* Align with label text */
-    padding: 0; /* Remove default padding */
+    padding: 0; /* Remove any padding to align properly */
 }
 
 .info-button:hover {
