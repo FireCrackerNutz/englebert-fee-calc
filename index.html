@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Englebert Fee Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Englebert Fee Calculator</h1>
+        <form id="feeCalculator">
+            <!-- Number of Tokens -->
+            <label for="numTokens">Number of Tokens:</label>
+            <select id="numTokens" name="numTokens">
+                <option value="14000">1</option>
+                <option value="16000">2-5</option>
+                <option value="18000">6-10</option>
+                <option value="20000">11-20</option>
+                <option value="22000">21-30</option>
+                <option value="24000">31-50</option>
+                <option value="25000">50-100</option>
+                <option value="27000">100+</option>
+            </select>
+
+            <!-- Risk Profile -->
+            <label for="riskProfile">Risk Profile:</label>
+            <select id="riskProfile" name="riskProfile">
+                <option value="1.0">All ≤ Low-Med Risk Tokens</option>
+                <option value="1.2">1-5</option>
+                <option value="1.4">6-10</option>
+                <option value="1.6">11-20</option>
+                <option value="1.8">21-40</option>
+                <option value="2.0">41-80</option>
+                <option value="2.3">80+</option>
+            </select>
+
+            <!-- Web/App Pages -->
+            <label for="webPages">Number of Web/App Pages:</label>
+            <select id="webPages" name="webPages">
+                <option value="0.0">None</option>
+                <option value="0.2">1-5</option>
+                <option value="0.4">6-10</option>
+                <option value="0.6">11-20</option>
+                <option value="0.8">21-40</option>
+                <option value="1.0">41-80</option>
+                <option value="1.5">80+</option>
+            </select>
+
+            <!-- Monthly Emails -->
+            <label for="emails">Monthly Email Templates:</label>
+            <select id="emails" name="emails">
+                <option value="0.05">1-5</option>
+                <option value="0.1">6-10</option>
+                <option value="0.15">11-15</option>
+                <option value="0.2">16-20</option>
+                <option value="0.3">21-30</option>
+                <option value="0.4">31-40</option>
+                <option value="0.6">41-60</option>
+            </select>
+
+            <!-- Social Media Presence -->
+            <label for="socialMedia">Social Media Platforms:</label>
+            <select id="socialMedia" name="socialMedia">
+                <option value="0.0">None</option>
+                <option value="0.2">Standard (Instagram/Facebook)</option>
+                <option value="0.4">+1 Non-Standard</option>
+                <option value="0.6">+2 Non-Standard</option>
+                <option value="0.8">+3 Non-Standard</option>
+            </select>
+
+            <!-- Social Media Volume -->
+            <label for="socialVolume">Number of Unique Posts per Month:</label>
+            <select id="socialVolume" name="socialVolume">
+                <option value="0.0">1-5</option>
+                <option value="0.2">6-10</option>
+                <option value="0.4">11-15</option>
+                <option value="0.8">16-20</option>
+                <option value="1.2">21-30</option>
+                <option value="1.8">31-40</option>
+                <option value="2.5">41-60</option>
+            </select>
+
+            <!-- Dickhead Factor -->
+            <label for="dickheadFactor">Client Responsiveness:</label>
+            <select id="dickheadFactor" name="dickheadFactor">
+                <option value="1.0">Compliant</option>
+                <option value="1.2">Difficult</option>
+                <option value="1.5">Challenging</option>
+            </select>
+
+            <!-- Calculate Fee Button -->
+            <button type="button" onclick="calculateFee()">Calculate Fee</button>
+        </form>
+
+        <!-- Display Result -->
+        <div id="result">
+            <h2>Estimated Fee: £<span id="feeAmount">0.00</span></h2>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
