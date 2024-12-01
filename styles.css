@@ -97,22 +97,28 @@ footer {
 
 /* Style for the info button */
 .inline-container {
-    display: flex;
-    align-items: center; /* Aligns the button vertically with the text */
-    gap: 5px; /* Adds space between the label and the button */
+    display: flex; /* Ensures the label and button are on the same line */
+    align-items: center; /* Vertically aligns the label and button */
+    gap: 8px; /* Adds a small space between the label and button */
+    white-space: nowrap; /* Prevents the label text from wrapping */
 }
 
 .info-button {
-    background-color: transparent;
+    background-color: transparent; /* Matches background */
     border: none;
-    color: #f4a261;
-    font-size: 1rem;
+    color: #f4a261; /* Englebert orange */
+    font-size: 1.2rem; /* Adjusts size of the info icon */
     cursor: pointer;
-    padding: 0; /* Remove any padding to align properly */
+    transition: transform 0.2s; /* Adds hover effect */
+    padding: 0; /* Removes extra padding */
 }
 
 .info-button:hover {
-    color: #e08f53; /* Slightly darker orange on hover */
+    transform: scale(1.2); /* Slight zoom effect on hover */
+}
+
+.info-button:focus {
+    outline: none; /* Removes focus outline */
 }
 
 
