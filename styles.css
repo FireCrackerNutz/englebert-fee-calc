@@ -16,7 +16,7 @@ body {
 }
 
 .logo-container img {
-    height: 220px; /* Adjust the height for a larger logo */
+    height: 120px; /* Adjust the height for a larger logo */
     width: auto; /* Maintain aspect ratio */
     margin-right: 20px; /* Add space between the logo and the text */
 }
@@ -51,7 +51,7 @@ header {
 
 .header-text {
     text-align: center;
-    margin-left: 220px; /* Offset to re-center the text */
+    margin-left: 120px; /* Offset to re-center the text */
     flex-grow: 1;
 }
 
