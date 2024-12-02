@@ -51,7 +51,7 @@ header {
 
 .header-text {
     text-align: center;
-    margin-left: 240px; /* Offset to re-center the text */
+    margin-left: 40px; /* Offset to re-center the text */
     flex-grow: 1;
 }
 
