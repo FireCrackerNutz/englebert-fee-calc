@@ -10,7 +10,7 @@ body {
 /* Logo styles */
 .logo-container {
     position: absolute; /* Keeps the logo at a fixed position */
-    top: 20px; /* Distance from the top of the page */
+    top: 10px; /* Distance from the top of the page */
     left: 20px; /* Distance from the left of the page */
     z-index: 1000; /* Ensures the logo stays on top */
 }
