@@ -7,11 +7,28 @@ body {
     color: #ffffff; /* White text for contrast */
 }
 
+/* Logo styles */
+.logo-container {
+    position: absolute; /* Allows free positioning */
+    top: 20px; /* Space from the top */
+    left: 20px; /* Space from the left */
+    z-index: 1000; /* Ensures it stays on top of other content */
+}
+
+.logo-top-left {
+    max-width: 100px; /* Scale the logo */
+    height: auto; /* Maintain aspect ratio */
+}
+
+/* Header styles */
 header {
-    text-align: center;
+    text-align: center; /* Keeps header content centered */
     padding: 20px;
     background-color: #2c2545; /* Slightly lighter purple */
+    margin-left: 120px; /* Adds space to prevent overlap with the logo */
+    position: relative; /* Keeps the header layout intact */
 }
+
 
 header h1 {
     color: #f4a261; /* Englebert orange */
