@@ -9,17 +9,17 @@ body {
 
 /* Logo styles */
 .logo-container {
-    position: absolute; /* Allows free positioning */
-    top: 20px; /* Space from the top */
-    left: 20px; /* Space from the left */
+    position: absolute; /* Keeps the logo positioned relative to the header */
+    top: 20px; /* Space from the top of the header */
+    left: 20px; /* Space from the left of the header */
     z-index: 1000; /* Ensures it stays on top of other content */
 }
 
 .logo-container img {
-    height: 120px; /* Adjust the height for a larger logo */
+    height: 100px; /* Adjust the logo size as needed */
     width: auto; /* Maintain aspect ratio */
-    margin-right: 20px; /* Add space between the logo and the text */
 }
+
 
 
 .logo-top-left {
@@ -30,9 +30,10 @@ body {
 /* Header styles */
 header {
     background-color: #2c2545; /* Slightly lighter purple */
-    padding: 20px;
-    position: relative; /* Allows the logo and text to coexist in relative positioning */
+    padding: 20px 0; /* Add vertical padding for better spacing */
+    position: relative; /* Ensure logo stays within the header area */
 }
+
 
 .header-container {
     display: flex;
