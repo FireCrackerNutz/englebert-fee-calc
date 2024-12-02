@@ -16,7 +16,7 @@ body {
 }
 
 .logo-container img {
-    height: 120px; /* Adjust the height for a larger logo */
+    height: 220px; /* Adjust the height for a larger logo */
     width: auto; /* Maintain aspect ratio */
     margin-right: 20px; /* Add space between the logo and the text */
 }
@@ -45,7 +45,7 @@ header {
     position: absolute;
     top: 20px;
     left: 20px;
-    width: 400px; /* Increase the width */
+    width: 100px; /* Increase the width */
     height: auto; /* Maintain aspect ratio */
 }
 
