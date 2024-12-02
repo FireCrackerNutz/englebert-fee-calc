@@ -16,8 +16,11 @@ document.getElementById("calculate-fee").addEventListener("click", function() {
         (baseline * (webIncrement + emailIncrement)) +
         (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
 
+    // Add 10% to the fee
+    const totalFee = fee * 1.10;
+
     // Update the fee display
-    document.getElementById("fee-display").innerText = `£${fee.toFixed(2)}`;
+    document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
 });
 
 // Popup logic
