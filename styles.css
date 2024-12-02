@@ -31,24 +31,29 @@ body {
 header {
     background-color: #2c2545; /* Slightly lighter purple */
     padding: 20px;
+    position: relative; /* Allows the logo and text to coexist in relative positioning */
 }
 
 .header-container {
     display: flex;
-    align-items: center;
-    justify-content: center; /* Center the text block */
-    flex-wrap: wrap;
-    position: relative;
+    flex-direction: column; /* Stack text lines */
+    align-items: center; /* Center-align text */
+    position: relative; /* Keeps text centered relative to the header */
 }
 
-.header-logo {
-    position: absolute;
+.logo-container {
+    position: absolute; /* Keeps the logo in the corner */
     top: 20px;
     left: 20px;
-    width: 10px; /* Increase the width */
-    height: auto; /* Maintain aspect ratio */
+    z-index: 1000;
 }
 
+.logo-container img {
+    height: 120px; /* Larger logo */
+    width: auto;
+}
+
+/* Adjust text centering */
 .header-text {
     text-align: center;
     margin: 0; /* Remove extra margins to prevent displacement */
@@ -63,7 +68,7 @@ header h1 {
 
 header p {
     color: #d9d9d9; /* Light grey for supporting text */
-    margin: 0;
+    margin: 5px 0 0;
     font-size: 1.2rem;
 }
 
