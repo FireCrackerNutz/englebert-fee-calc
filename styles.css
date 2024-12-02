@@ -23,7 +23,7 @@ body {
 
 
 .logo-top-left {
-    max-width: 100px; /* Scale the logo */
+    max-width: 200px; /* Scale the logo */
     height: auto; /* Maintain aspect ratio */
 }
 
