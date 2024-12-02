@@ -51,8 +51,8 @@ header {
 
 .header-text {
     text-align: center;
-    margin-left: 40px; /* Offset to re-center the text */
-    flex-grow: 1;
+    margin: 0; /* Remove extra margins to prevent displacement */
+    flex-grow: 1; /* Ensures it stretches evenly */
 }
 
 header h1 {
