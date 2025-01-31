@@ -1,62 +1,74 @@
 // script.js
 
-// Event listener for the Calculate Fee button
-document.getElementById("calculate-fee").addEventListener("click", function() {
-    // Retrieve values from the dropdowns
-    const baseline = parseFloat(document.getElementById("tokens").value);
-    const riskMultiplier = parseFloat(document.getElementById("risk-profile").value);
-    const webIncrement = parseFloat(document.getElementById("web-app").value);
-    const emailIncrement = parseFloat(document.getElementById("emails").value);
-    const socialsPresenceIncrement = parseFloat(document.getElementById("socials-presence").value);
-    const socialsVolumeIncrement = parseFloat(document.getElementById("socials-volume").value);
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("Script loaded and ready!");
 
-    // Calculate the estimated fee
-    const fee = 
-        (baseline * riskMultiplier) +
-        (baseline * (webIncrement + emailIncrement)) +
-        (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
+    // Calculate Fee button
+    document.getElementById("calculate-fee").addEventListener("click", function () {
+        const baseline = parseFloat(document.getElementById("tokens").value);
+        const riskMultiplier = parseFloat(document.getElementById("risk-profile").value);
+        const webIncrement = parseFloat(document.getElementById("web-app").value);
+        const emailIncrement = parseFloat(document.getElementById("emails").value);
+        const socialsPresenceIncrement = parseFloat(document.getElementById("socials-presence").value);
+        const socialsVolumeIncrement = parseFloat(document.getElementById("socials-volume").value);
 
-    // Add 10% to the fee
-    const totalFee = fee * 1.10;
+        const fee =
+            (baseline * riskMultiplier) +
+            (baseline * (webIncrement + emailIncrement)) +
+            (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
 
-    // Update the fee display
-    document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
-});
+        const totalFee = fee * 1.10; // Add 10%
 
-// Function to capture the page and send it to Confluence
-document.getElementById("save-to-confluence").addEventListener("click", function() {
-    const clientName = document.getElementById("client-name").value.trim();
+        document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
+    });
 
-    if (!clientName) {
-        alert("Please enter a Client Name before saving to Confluence.");
+    // Save to Confluence button
+    const saveButton = document.getElementById("save-to-confluence");
+    if (!saveButton) {
+        console.error("Save to Confluence button not found!");
         return;
     }
 
-    html2canvas(document.body).then(canvas => {
-        const imageData = canvas.toDataURL("image/png");
+    saveButton.addEventListener("click", function () {
+        console.log("Save to Confluence button clicked!");
 
-        // API request to GitHub Actions, which will handle the Confluence API call
-        fetch("https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/actions/workflows/save_to_confluence.yml/dispatches", {
-            method: "POST",
-            headers: {
-                "Accept": "application/vnd.github.v3+json",
-                "Authorization": `token ${GHUB_PAT}` // This uses your GitHub secret
-            },
-            body: JSON.stringify({
-                ref: "main", // Adjust if your branch is different
-                inputs: {
-                    clientName: clientName,
-                    imageData: imageData
-                }
+        const clientName = document.getElementById("client-name").value.trim();
+
+        if (!clientName) {
+            alert("Please enter a Client Name before saving to Confluence.");
+            return;
+        }
+
+        html2canvas(document.body).then(canvas => {
+            const imageData = canvas.toDataURL("image/png");
+
+            console.log("Captured Screenshot - Sending to GitHub Actions...");
+
+            // Call GitHub Actions API
+            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save_to_confluence.yml/dispatches", {
+                method: "POST",
+                headers: {
+                    "Accept": "application/vnd.github.everest-preview+json",
+                    "Authorization": `Bearer GHUB_PAT`, // GitHub Actions will handle authentication
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    ref: "main", // Adjust if your default branch is different
+                    inputs: {
+                        clientName: clientName,
+                        imageData: imageData
+                    }
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert("Estimate sent to Confluence workflow!");
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("Failed to send estimate to Confluence.");
+            .then(response => response.json())
+            .then(data => {
+                console.log("GitHub Actions Response:", data);
+                alert("Estimate sent to Confluence workflow!");
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Failed to send estimate to Confluence.");
+            });
         });
     });
 });
