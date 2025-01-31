@@ -49,11 +49,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: "POST",
                 headers: {
                     "Accept": "application/vnd.github.v3+json",
-                    "Authorization": "Bearer YOUR_GITHUB_PAT", // ✅ Replace with your stored GitHub Token
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    ref: "main", // Adjust if your branch is different
+                    ref: "main", // Adjust if your default branch is different
                     inputs: {
                         clientName: clientName,
                         imageData: imageData
