@@ -17,13 +17,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Debug GitHub Secrets
+        run: echo "GHUB_PAT is available"
+        env:
+          GHUB_PAT: ${{ secrets.GHUB_PAT }}
+
       - name: Decode Image and Save Estimate to Confluence
+        env:
+          GHUB_PAT: ${{ secrets.GHUB_PAT }}
+          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
         run: |
           CLIENT_NAME="${{ github.event.inputs.clientName }}"
           IMAGE_DATA="${{ github.event.inputs.imageData }}"
+
+          echo "Running workflow with Client Name: $CLIENT_NAME"
           
           curl -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
-            -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
+            -H "Authorization: Basic $(echo -n '${{ env.CONFLUENCE_USER }}:${{ env.CONFLUENCE_API_TOKEN }}' | base64)" \
             -H "Content-Type: application/json" \
             --data '{
               "type": "page",
@@ -37,5 +48,4 @@ jobs:
                 }
               }
             }'
-        env:
-          GHUB_PAT: ${{ secrets.GHUB_PAT }}
+
