@@ -23,7 +23,7 @@ document.getElementById("calculate-fee").addEventListener("click", function() {
     document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
 });
 
-// Function to capture the page and send it to Confluence
+// Function to capture the page and send it to GitHub Actions for Confluence integration
 document.getElementById("save-to-confluence").addEventListener("click", function() {
     const clientName = document.getElementById("client-name").value.trim();
 
@@ -35,52 +35,33 @@ document.getElementById("save-to-confluence").addEventListener("click", function
     html2canvas(document.body).then(canvas => {
         const imageData = canvas.toDataURL("image/png");
 
-        // Confluence API details
-        const CONFLUENCE_URL = "https://englebertltd.atlassian.net/wiki";
-        const CONFLUENCE_API_TOKEN = "ATATT3xFfGF0E0YUEwFBdQybdFMB8jQddBD0m3oH7ds4ekOMoYSeTsKrsmHULRrS0h-ltuqa8300U8gTIpxGBpjAw1M7eiz1dqyMasKNsP7ClmgetVJJd6f7B7b4kDy3hnNJl-pfLfSH7SgBHgzsCDt5JG3tCwWccJncWJKPLPPg_qeudC49AH0=405EE58C";
-        const CONFLUENCE_USER = "nikolas@englebert.xyz";
-        const PARENT_PAGE_ID = "182911020"; // The page where estimates will be saved
-
-        // Prepare the page content
-        const content = `
-            <h1>Fee Estimate for ${clientName}</h1>
-            <p>This is the saved estimate for ${clientName}.</p>
-            <p><img src="${imageData}" alt="Fee Estimate Screenshot"></p>
-        `;
-
+        // Prepare the payload for GitHub Actions
         const requestData = {
-            type: "page",
-            title: `Fee Estimate - ${clientName}`,
-            ancestors: [{ id: PARENT_PAGE_ID }],
-            space: { key: "Clients" },
-            body: {
-                storage: {
-                    value: content,
-                    representation: "storage"
-                }
-            }
+            event_type: "save_fee_estimate",
+            client_name: clientName,
+            estimate_image: imageData
         };
 
-        fetch(`${CONFLUENCE_URL}/rest/api/content`, {
+        fetch("https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY/dispatches", {
             method: "POST",
             headers: {
-                "Authorization": "Basic " + btoa(CONFLUENCE_USER + ":" + CONFLUENCE_API_TOKEN),
+                "Accept": "application/vnd.github.everest-preview+json",
+                "Authorization": `token ${GITHUB_PAT}`,  // Securely retrieved from GitHub Secrets in the action
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(requestData)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.id) {
-                alert(`Estimate saved to Confluence: ${CONFLUENCE_URL}/spaces/Clients/pages/${data.id}`);
+        .then(response => {
+            if (response.ok) {
+                alert(`Estimate submitted for ${clientName}. It will be saved to Confluence.`);
             } else {
-                alert("Failed to save estimate to Confluence.");
-                console.error(data);
+                alert("Failed to trigger GitHub Action.");
+                console.error(response);
             }
         })
         .catch(error => {
             console.error("Error:", error);
-            alert("There was an error saving to Confluence.");
+            alert("There was an error triggering the GitHub Action.");
         });
     });
 });
