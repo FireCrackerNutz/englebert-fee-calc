@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Captured Screenshot - Sending to GitHub Actions...");
 
             // ✅ Trigger GitHub Actions using GitHub API (WITHOUT `process.env`)
-            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save_to_confluence.yml/dispatches", {
+            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save-to-confluence.yml/dispatches", {
                 method: "POST",
                 headers: {
                     "Accept": "application/vnd.github.v3+json",
