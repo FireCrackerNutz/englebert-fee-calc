@@ -29,26 +29,27 @@ jobs:
           echo "CONFLUENCE_API_TOKEN=${{ secrets.CONFLUENCE_API_TOKEN }}"
           echo "GHUB_PAT=${{ secrets.GHUB_PAT }}"
 
-      - name: Decode Image and Save Estimate to Confluence
-        run: |
-          CLIENT_NAME="${{ github.event.inputs.clientName }}"
-          IMAGE_DATA=$(echo "${{ github.event.inputs.imageData }}" | base64 -d | base64) # Ensure clean Base64 encoding
-          
-          curl -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
-            -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
-            -H "Content-Type: application/json" \
-            --data '{
-              "type": "page",
-              "title": "Fee Estimate - '"$CLIENT_NAME"'",
-              "ancestors": [{ "id": "182911020" }],
-              "space": { "key": "Clients" },
-              "body": {
-                "storage": {
-                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src=\"data:image/png;base64,'"${IMAGE_DATA}"'\" alt='Estimate Screenshot'></p>",
-                  "representation": "storage"
+        - name: Decode Image and Save Estimate to Confluence
+          run: |
+            CLIENT_NAME="${{ github.event.inputs.clientName }}"
+            IMAGE_DATA="${{ github.event.inputs.imageData }}"
+            
+            curl -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
+              -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
+              -H "Content-Type: application/json" \
+              --data '{
+                "type": "page",
+                "title": "Fee Estimate - '"$CLIENT_NAME"'",
+                "ancestors": [{ "id": "182911020" }],
+                "space": { "key": "Clients" },
+                "body": {
+                  "storage": {
+                    "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src=\"data:image/png;base64,'"${IMAGE_DATA}"'\" alt='Estimate Screenshot'></p>",
+                    "representation": "storage"
+                  }
                 }
-              }
-            }'
+              }'
+
 
         env:
           GHUB_PAT: ${{ secrets.GHUB_PAT }}
