@@ -23,7 +23,7 @@ document.getElementById("calculate-fee").addEventListener("click", function() {
     document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
 });
 
-// Function to capture the page and send it to GitHub Actions for Confluence integration
+// Function to capture the page and send it to Confluence
 document.getElementById("save-to-confluence").addEventListener("click", function() {
     const clientName = document.getElementById("client-name").value.trim();
 
@@ -35,36 +35,32 @@ document.getElementById("save-to-confluence").addEventListener("click", function
     html2canvas(document.body).then(canvas => {
         const imageData = canvas.toDataURL("image/png");
 
-        // Prepare the payload for GitHub Actions
-        const requestData = {
-            event_type: "save_fee_estimate",
-            client_name: clientName,
-            estimate_image: imageData
-        };
-
-        fetch("https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY/dispatches", {
+        // API request to GitHub Actions, which will handle the Confluence API call
+        fetch("https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/actions/workflows/save_to_confluence.yml/dispatches", {
             method: "POST",
             headers: {
-                "Accept": "application/vnd.github.everest-preview+json",
-                "Authorization": `token ${GITHUB_PAT}`,  // Securely retrieved from GitHub Secrets in the action
-                "Content-Type": "application/json"
+                "Accept": "application/vnd.github.v3+json",
+                "Authorization": `token ${GITHUB_TOKEN}` // This uses your GitHub secret
             },
-            body: JSON.stringify(requestData)
+            body: JSON.stringify({
+                ref: "main", // Adjust if your branch is different
+                inputs: {
+                    clientName: clientName,
+                    imageData: imageData
+                }
+            })
         })
-        .then(response => {
-            if (response.ok) {
-                alert(`Estimate submitted for ${clientName}. It will be saved to Confluence.`);
-            } else {
-                alert("Failed to trigger GitHub Action.");
-                console.error(response);
-            }
+        .then(response => response.json())
+        .then(data => {
+            alert("Estimate sent to Confluence workflow!");
         })
         .catch(error => {
             console.error("Error:", error);
-            alert("There was an error triggering the GitHub Action.");
+            alert("Failed to send estimate to Confluence.");
         });
     });
 });
+
 
 // Popup logic
 const infoButton = document.getElementById("info-button");
