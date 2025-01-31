@@ -201,3 +201,23 @@ footer {
     background-color: rgba(0, 0, 0, 0.6);
     z-index: 999;
 }
+
+/* Styling for Save to Confluence button */
+#save-to-confluence {
+    display: block;
+    width: 60%; /* Smaller button width */
+    margin: 10px auto; /* Centering */
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #4a90e2; /* Blue to differentiate from Calculate Fee */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#save-to-confluence:hover {
+    background-color: #357abd; /* Darker blue on hover */
+}
