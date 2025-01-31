@@ -44,20 +44,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Captured Screenshot - Sending to GitHub Actions...");
 
-            // Call GitHub Actions API
-            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save_to_confluence.yml/dispatches", {
-                method: "POST",
+            // Call GitHub Actions via a JSON file commit trigger
+            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/contents/confluence_request.json", {
+                method: "PUT",
                 headers: {
-                    "Accept": "application/vnd.github.everest-preview+json",
-                    "Authorization": `Bearer GHUB_PAT`, // GitHub Actions will handle authentication
+                    "Accept": "application/vnd.github.v3+json",
+                    "Authorization": `Bearer YOUR_GITHUB_PAT`,  // DO NOT HARDCODE IN JAVASCRIPT
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    ref: "main", // Adjust if your default branch is different
-                    inputs: {
+                    message: `New Confluence Save Request for ${clientName}`,
+                    content: btoa(JSON.stringify({
                         clientName: clientName,
                         imageData: imageData
-                    }
+                    })),
+                    branch: "main"
                 })
             })
             .then(response => response.json())
