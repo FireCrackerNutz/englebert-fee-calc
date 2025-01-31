@@ -32,10 +32,10 @@ jobs:
       - name: Decode Image and Save Estimate to Confluence
         run: |
           CLIENT_NAME="${{ github.event.inputs.clientName }}"
-          IMAGE_DATA="${{ github.event.inputs.imageData }}"
+          IMAGE_DATA=$(echo "${{ github.event.inputs.imageData }}" | base64 -d | base64) # Ensure clean Base64 encoding
           
           curl -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
-            -H "Authorization: Basic $(printf '%s' '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
+            -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
             -H "Content-Type: application/json" \
             --data '{
               "type": "page",
@@ -44,10 +44,11 @@ jobs:
               "space": { "key": "Clients" },
               "body": {
                 "storage": {
-                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src='"$IMAGE_DATA"' alt='Estimate Screenshot'></p>",
+                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src=\"data:image/png;base64,'"${IMAGE_DATA}"'\" alt='Estimate Screenshot'></p>",
                   "representation": "storage"
                 }
               }
             }'
+
         env:
           GHUB_PAT: ${{ secrets.GHUB_PAT }}
