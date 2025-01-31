@@ -23,6 +23,68 @@ document.getElementById("calculate-fee").addEventListener("click", function() {
     document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
 });
 
+// Function to capture the page and send it to Confluence
+document.getElementById("save-to-confluence").addEventListener("click", function() {
+    const clientName = document.getElementById("client-name").value.trim();
+
+    if (!clientName) {
+        alert("Please enter a Client Name before saving to Confluence.");
+        return;
+    }
+
+    html2canvas(document.body).then(canvas => {
+        const imageData = canvas.toDataURL("image/png");
+
+        // Confluence API details
+        const CONFLUENCE_URL = "https://englebertltd.atlassian.net/wiki";
+        const CONFLUENCE_API_TOKEN = "ATATT3xFfGF0E0YUEwFBdQybdFMB8jQddBD0m3oH7ds4ekOMoYSeTsKrsmHULRrS0h-ltuqa8300U8gTIpxGBpjAw1M7eiz1dqyMasKNsP7ClmgetVJJd6f7B7b4kDy3hnNJl-pfLfSH7SgBHgzsCDt5JG3tCwWccJncWJKPLPPg_qeudC49AH0=405EE58C";
+        const CONFLUENCE_USER = "nikolas@englebert.xyz";
+        const PARENT_PAGE_ID = "182911020"; // The page where estimates will be saved
+
+        // Prepare the page content
+        const content = `
+            <h1>Fee Estimate for ${clientName}</h1>
+            <p>This is the saved estimate for ${clientName}.</p>
+            <p><img src="${imageData}" alt="Fee Estimate Screenshot"></p>
+        `;
+
+        const requestData = {
+            type: "page",
+            title: `Fee Estimate - ${clientName}`,
+            ancestors: [{ id: PARENT_PAGE_ID }],
+            space: { key: "Clients" },
+            body: {
+                storage: {
+                    value: content,
+                    representation: "storage"
+                }
+            }
+        };
+
+        fetch(`${CONFLUENCE_URL}/rest/api/content`, {
+            method: "POST",
+            headers: {
+                "Authorization": "Basic " + btoa(CONFLUENCE_USER + ":" + CONFLUENCE_API_TOKEN),
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.id) {
+                alert(`Estimate saved to Confluence: ${CONFLUENCE_URL}/spaces/Clients/pages/${data.id}`);
+            } else {
+                alert("Failed to save estimate to Confluence.");
+                console.error(data);
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("There was an error saving to Confluence.");
+        });
+    });
+});
+
 // Popup logic
 const infoButton = document.getElementById("info-button");
 const overlay = document.createElement("div");
@@ -128,11 +190,6 @@ infoButton.addEventListener("click", () => {
 });
 
 overlay.addEventListener("click", () => {
-    overlay.style.display = "none";
-    popup.style.display = "none";
-});
-
-document.getElementById("close-popup").addEventListener("click", () => {
     overlay.style.display = "none";
     popup.style.display = "none";
 });
