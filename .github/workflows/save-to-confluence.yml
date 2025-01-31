@@ -1,30 +1,47 @@
-name: Save Fee Estimate to Confluence
+name: Save Estimate to Confluence
 
 on:
-  workflow_dispatch:  # Allows manual triggering
-  repository_dispatch:  # Allows triggering from JavaScript
+  push:
+    branches:
+      - main
+    paths:
+      - "confluence_request.json"
 
 jobs:
-  save_to_confluence:
+  save-to-confluence:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Save Fee Estimate to Confluence
+      - name: Read Confluence Request JSON
+        id: read_json
         run: |
-          curl -X POST "${{ secrets.CONFLUENCE_URL }}/rest/api/content/" \
-          -u "${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          --data '{
-            "type": "page",
-            "title": "'"${{ github.event.client_name }}"' Fee Estimate",
-            "ancestors": [{"id": 182911020}],
-            "space": "Clients",
-            "body": {
-              "storage": {
-                "value": "'"${{ github.event.estimate_html }}"'",
-                "representation": "storage"
+          CONTENT=$(jq -r '.content' confluence_request.json | base64 --decode)
+          echo "$CONTENT" > confluence_data.json
+
+      - name: Extract Data
+        id: extract_data
+        run: |
+          CLIENT_NAME=$(jq -r '.clientName' confluence_data.json)
+          IMAGE_DATA=$(jq -r '.imageData' confluence_data.json)
+          echo "CLIENT_NAME=$CLIENT_NAME" >> $GITHUB_ENV
+          echo "IMAGE_DATA=$IMAGE_DATA" >> $GITHUB_ENV
+
+      - name: Save Estimate to Confluence
+        run: |
+          curl -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
+            -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "type": "page",
+              "title": "Fee Estimate - '"$CLIENT_NAME"'",
+              "ancestors": [{ "id": "182911020" }],
+              "space": { "key": "Clients" },
+              "body": {
+                "storage": {
+                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src='"$IMAGE_DATA"' alt='Estimate Screenshot'></p>",
+                  "representation": "storage"
+                }
               }
-            }
-          }'
+            }'
