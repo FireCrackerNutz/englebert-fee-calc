@@ -1,11 +1,14 @@
 name: Save Estimate to Confluence
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "confluence_request.json"
+  workflow_dispatch:
+    inputs:
+      clientName:
+        description: "Client Name"
+        required: true
+      imageData:
+        description: "Base64 Image Data"
+        required: true
 
 jobs:
   save-to-confluence:
@@ -14,22 +17,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Read Confluence Request JSON
-        id: read_json
+      - name: Decode Image and Save Estimate to Confluence
         run: |
-          CONTENT=$(jq -r '.content' confluence_request.json | base64 --decode)
-          echo "$CONTENT" > confluence_data.json
-
-      - name: Extract Data
-        id: extract_data
-        run: |
-          CLIENT_NAME=$(jq -r '.clientName' confluence_data.json)
-          IMAGE_DATA=$(jq -r '.imageData' confluence_data.json)
-          echo "CLIENT_NAME=$CLIENT_NAME" >> $GITHUB_ENV
-          echo "IMAGE_DATA=$IMAGE_DATA" >> $GITHUB_ENV
-
-      - name: Save Estimate to Confluence
-        run: |
+          CLIENT_NAME="${{ github.event.inputs.clientName }}"
+          IMAGE_DATA="${{ github.event.inputs.imageData }}"
+          
           curl -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
             -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
             -H "Content-Type: application/json" \
