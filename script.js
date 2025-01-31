@@ -44,23 +44,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Captured Screenshot - Sending to GitHub Actions...");
 
-            // Trigger GitHub Actions using an API request (GitHub Actions reads GHUB_PAT)
+            // ✅ Trigger GitHub Actions using GitHub API (WITHOUT `process.env`)
             fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save_to_confluence.yml/dispatches", {
                 method: "POST",
                 headers: {
-                    "Accept": "application/vnd.github.everest-preview+json",
-                    "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`, // GitHub Actions automatically injects this token
+                    "Accept": "application/vnd.github.v3+json",
+                    "Authorization": "Bearer YOUR_GITHUB_PAT", // ✅ Replace with your stored GitHub Token
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    ref: "main", // Adjust if your default branch is different
+                    ref: "main", // Adjust if your branch is different
                     inputs: {
                         clientName: clientName,
                         imageData: imageData
                     }
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`GitHub API responded with status ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log("GitHub Actions Response:", data);
                 alert("Estimate sent to Confluence workflow!");
