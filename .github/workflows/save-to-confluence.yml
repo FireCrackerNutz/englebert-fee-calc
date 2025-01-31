@@ -1,0 +1,30 @@
+name: Save Fee Estimate to Confluence
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  repository_dispatch:  # Allows triggering from JavaScript
+
+jobs:
+  save_to_confluence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Save Fee Estimate to Confluence
+        run: |
+          curl -X POST "${{ secrets.CONFLUENCE_URL }}/rest/api/content/" \
+          -u "${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data '{
+            "type": "page",
+            "title": "'"${{ github.event.client_name }}"' Fee Estimate",
+            "ancestors": [{"id": 182911020}],
+            "space": "Clients",
+            "body": {
+              "storage": {
+                "value": "'"${{ github.event.estimate_html }}"'",
+                "representation": "storage"
+              }
+            }
+          }'
