@@ -19,6 +19,10 @@
         </div>    
     </header>
     <form id="fee-calculator">
+        
+        <label for="client-name">Client Name:</label>
+        <input type="text" id="client-name" placeholder="Enter client name" required>
+
         <label for="tokens">Number of Cryptoassets:</label>
         <select id="tokens">
             <option value="14000">1</option>
@@ -35,7 +39,6 @@
             <label for="risk-profile">Number of Medium-High/High Risk Tokens:</label>
             <button type="button" id="info-button" class="info-button">ℹ️</button>
         </div>
-
 
         <select id="risk-profile">
             <option value="1.0">None</option>
@@ -91,13 +94,18 @@
 
         <button type="button" id="calculate-fee">Calculate Fee</button>
     </form>
+    
     <div id="result">
         <h2>Estimated Fee:</h2>
         <p id="fee-display">£0.00</p>
     </div>
+
+    <button type="button" id="save-to-confluence">Save to Confluence</button>
+
     <footer>
         <p>Powered by Englebert Ltd - Ensuring Trust. Empowering Growth.</p>
     </footer>
+
     <script src="script.js"></script>
 </body>
 </html>
