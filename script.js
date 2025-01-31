@@ -40,7 +40,7 @@ document.getElementById("save-to-confluence").addEventListener("click", function
             method: "POST",
             headers: {
                 "Accept": "application/vnd.github.v3+json",
-                "Authorization": `token ${GITHUB_TOKEN}` // This uses your GitHub secret
+                "Authorization": `token ${GHUB_TOKEN}` // This uses your GitHub secret
             },
             body: JSON.stringify({
                 ref: "main", // Adjust if your branch is different
