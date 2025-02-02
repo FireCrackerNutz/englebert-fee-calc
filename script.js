@@ -3,7 +3,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Script loaded and ready!");
 
-    // Calculate Fee button
     document.getElementById("calculate-fee").addEventListener("click", function () {
         const baseline = parseFloat(document.getElementById("tokens").value);
         const riskMultiplier = parseFloat(document.getElementById("risk-profile").value);
@@ -22,14 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
     });
 
-    // Save to Confluence button
-    const saveButton = document.getElementById("save-to-confluence");
-    if (!saveButton) {
-        console.error("Save to Confluence button not found!");
-        return;
-    }
-
-    saveButton.addEventListener("click", function () {
+    document.getElementById("save-to-confluence").addEventListener("click", function () {
         console.log("Save to Confluence button clicked!");
 
         const clientName = document.getElementById("client-name").value.trim();
@@ -44,15 +36,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Captured Screenshot - Sending to GitHub Actions...");
 
-            // ✅ Trigger GitHub Actions using GitHub API (WITHOUT authentication since it's a public repo)
+            // ✅ Trigger GitHub Actions using GHUB_PAT for authentication
             fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save-to-confluence.yml/dispatches", {
                 method: "POST",
                 headers: {
                     "Accept": "application/vnd.github.v3+json",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${GHUB_PAT}`  // ✅ Include GHUB_PAT in Authorization
                 },
                 body: JSON.stringify({
-                    ref: "main", // Adjust if your default branch is different
+                    ref: "main",
                     inputs: {
                         clientName: clientName,
                         imageData: imageData
@@ -76,6 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
 
 
 // Popup logic
