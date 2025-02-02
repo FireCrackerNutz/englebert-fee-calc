@@ -32,6 +32,7 @@ jobs:
           IMAGE_DATA="${{ github.event.inputs.imageData }}"
 
           echo "Sending request to Confluence..."
+
           RESPONSE=$(curl -s -o response.json -w "%{http_code}" -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
             -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
             -H "Content-Type: application/json" \
@@ -49,6 +50,7 @@ jobs:
             }')
 
           echo "HTTP Response Code: $RESPONSE"
+          echo "Confluence API Response:"
           cat response.json || echo "No response file found"
 
           if [[ "$RESPONSE" -ne 200 && "$RESPONSE" -ne 201 ]]; then
