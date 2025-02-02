@@ -13,32 +13,18 @@ on:
 jobs:
   save-to-confluence:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl jq
+      - name: Install Curl (Ensure it's available)
+        run: sudo apt-get update && sudo apt-get install -y curl jq
 
-      - name: Debug Environment
+      - name: Debug Environment Variables
         run: |
-          echo "Checking available commands..."
-          which base64 || echo "ERROR: base64 command not found!"
-          which curl || echo "ERROR: curl command not found!"
-          which jq || echo "ERROR: jq command not found!"
-
-      - name: Debug Inputs
-        run: |
-          echo "Client Name: ${{ github.event.inputs.clientName }}"
-          echo "Image Data Length: $(echo -n '${{ github.event.inputs.imageData }}' | wc -c)"
-          echo "Image Data Preview: $(echo -n '${{ github.event.inputs.imageData }}' | head -c 100)..."
-
-      - name: Encode Confluence Auth
-        run: |
-          AUTH_HEADER=$(echo -n "${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}" | base64 | tr -d '\n')
-          echo "AUTH_HEADER=$AUTH_HEADER" >> $GITHUB_ENV
+          echo "CLIENT_NAME=${{ github.event.inputs.clientName }}"
+          echo "IMAGE_DATA length: ${#IMAGE_DATA}"
 
       - name: Send Data to Confluence
         run: |
@@ -47,7 +33,7 @@ jobs:
 
           echo "Sending request to Confluence..."
           RESPONSE=$(curl -s -o response.json -w "%{http_code}" -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
-            -H "Authorization: Basic $AUTH_HEADER" \
+            -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
             -H "Content-Type: application/json" \
             --data '{
               "type": "page",
@@ -63,12 +49,12 @@ jobs:
             }')
 
           echo "HTTP Response Code: $RESPONSE"
-          cat response.json
+          cat response.json || echo "No response file found"
 
           if [[ "$RESPONSE" -ne 200 && "$RESPONSE" -ne 201 ]]; then
             echo "ERROR: Failed to create page on Confluence!"
             exit 1
           fi
 
-      - name: Cleanup
-        run: rm -f response.json
+      - name: Debug Confluence Response
+        run: cat response.json || echo "No response file found"
