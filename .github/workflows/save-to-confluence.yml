@@ -35,7 +35,7 @@ jobs:
               IMAGE_DATA="${{ github.event.inputs.imageData }}"
               
               curl -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
-                -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
+                -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64 -w 0)" \
                 -H "Content-Type: application/json" \
                 --data '{
                   "type": "page",
@@ -44,7 +44,7 @@ jobs:
                   "space": { "key": "Clients" },
                   "body": {
                     "storage": {
-                      "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src=\"data:image/png;base64,'"${IMAGE_DATA}"'\" alt='Estimate Screenshot'></p>",
+                      "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src=\"data:image/png;base64,'"$IMAGE_DATA"'\" alt=\"Estimate Screenshot\"></p>",
                       "representation": "storage"
                     }
                   }
