@@ -40,44 +40,42 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         html2canvas(document.body).then(canvas => {
-            canvas.toBlob(blob => {
-                const formData = new FormData();
-                formData.append("file", blob, "fee-estimate.png");
+            const imageData = canvas.toDataURL("image/png");
 
-                console.log("Captured Screenshot - Sending to GitHub Actions...");
+            console.log("Captured Screenshot - Sending to GitHub Actions...");
 
-                fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save-to-confluence.yml/dispatches", {
-                    method: "POST",
-                    headers: {
-                        "Accept": "application/vnd.github.v3+json",
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        ref: "main",
-                        inputs: {
-                            clientName: clientName
-                        }
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`GitHub API responded with status ${response.status}`);
+            // ✅ Trigger GitHub Actions using GitHub API (WITHOUT authentication since it's a public repo)
+            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save-to-confluence.yml/dispatches", {
+                method: "POST",
+                headers: {
+                    "Accept": "application/vnd.github.v3+json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    ref: "main", // Adjust if your default branch is different
+                    inputs: {
+                        clientName: clientName,
+                        imageData: imageData
                     }
-                    return response.json();
                 })
-                .then(data => {
-                    console.log("GitHub Actions Response:", data);
-                    alert("Estimate sent to Confluence workflow!");
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("Failed to send estimate to Confluence.");
-                });
-            }, "image/png");
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`GitHub API responded with status ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("GitHub Actions Response:", data);
+                alert("Estimate sent to Confluence workflow!");
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Failed to send estimate to Confluence.");
+            });
         });
     });
 });
-
 
 
 // Popup logic
