@@ -6,9 +6,6 @@ on:
       clientName:
         description: "Client Name"
         required: true
-      imageData:
-        description: "Base64 Image Data"
-        required: true
 
 jobs:
   save-to-confluence:
@@ -18,45 +15,62 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Curl (Ensure it's available)
+      - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y curl jq
 
-      - name: Debug Environment Variables
+      - name: Debug Input Variables
         run: |
           echo "CLIENT_NAME=${{ github.event.inputs.clientName }}"
-          echo "IMAGE_DATA length: ${#IMAGE_DATA}"
 
-      - name: Send Data to Confluence
+      - name: Upload Screenshot to Confluence
+        env:
+          CONFLUENCE_URL: "https://englebertltd.atlassian.net/wiki"
+          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          PAGE_PARENT_ID: "182911020"
         run: |
           CLIENT_NAME="${{ github.event.inputs.clientName }}"
-          IMAGE_DATA="${{ github.event.inputs.imageData }}"
+          
+          echo "Uploading image to Confluence..."
+          RESPONSE=$(curl -X POST "$CONFLUENCE_URL/rest/api/content/$PAGE_PARENT_ID/child/attachment" \
+            -u "$CONFLUENCE_USER:$CONFLUENCE_API_TOKEN" \
+            -H "X-Atlassian-Token: no-check" \
+            -F "file=@fee-estimate.png")
 
-          echo "Sending request to Confluence..."
+          ATTACHMENT_ID=$(echo "$RESPONSE" | jq -r '.results[0].id')
 
-          RESPONSE=$(curl -s -o response.json -w "%{http_code}" -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
-            -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
+          if [[ -z "$ATTACHMENT_ID" || "$ATTACHMENT_ID" == "null" ]]; then
+            echo "ERROR: Image upload failed."
+            exit 1
+          fi
+
+          echo "Uploaded Image ID: $ATTACHMENT_ID"
+
+      - name: Create Confluence Page with Image
+        env:
+          CONFLUENCE_URL: "https://englebertltd.atlassian.net/wiki"
+          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          SPACE_KEY: "Clients"
+          PAGE_PARENT_ID: "182911020"
+        run: |
+          IMAGE_URL="$CONFLUENCE_URL/download/attachments/$PAGE_PARENT_ID/fee-estimate.png"
+
+          echo "Creating Confluence Page..."
+          RESPONSE=$(curl -X POST "$CONFLUENCE_URL/rest/api/content" \
+            -u "$CONFLUENCE_USER:$CONFLUENCE_API_TOKEN" \
             -H "Content-Type: application/json" \
             --data '{
               "type": "page",
               "title": "Fee Estimate - '"$CLIENT_NAME"'",
-              "ancestors": [{ "id": "182911020" }],
-              "space": { "key": "Clients" },
+              "ancestors": [{ "id": "'"$PAGE_PARENT_ID"'" }],
+              "space": { "key": "'"$SPACE_KEY"'" },
               "body": {
                 "storage": {
-                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src='"$IMAGE_DATA"' alt='Estimate Screenshot'></p>",
+                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src=\"'"$IMAGE_URL"'\" width=\"800px\"/></p>",
                   "representation": "storage"
                 }
               }
             }')
 
-          echo "HTTP Response Code: $RESPONSE"
-          echo "Confluence API Response:"
-          cat response.json || echo "No response file found"
-
-          if [[ "$RESPONSE" -ne 200 && "$RESPONSE" -ne 201 ]]; then
-            echo "ERROR: Failed to create page on Confluence!"
-            exit 1
-          fi
-
-      - name: Debug Confluence Response
-        run: cat response.json || echo "No response file found"
+          echo "Confluence Response: $RESPONSE"
