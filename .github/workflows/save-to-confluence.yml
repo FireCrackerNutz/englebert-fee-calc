@@ -30,6 +30,7 @@ jobs:
         run: |
           CLIENT_NAME="${{ github.event.inputs.clientName }}"
           IMAGE_DATA="${{ github.event.inputs.imageData }}"
+          GHUB_PAT="${{ secrets.GHUB_PAT }}"  # ✅ Use GitHub Secret
 
           echo "Sending request to Confluence..."
 
