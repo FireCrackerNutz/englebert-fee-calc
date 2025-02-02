@@ -19,63 +19,56 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt update
-          sudo apt install -y curl jq
+          sudo apt-get update
+          sudo apt-get install -y curl jq
 
-      - name: Debug Environment Variables
+      - name: Debug Environment
         run: |
-          echo "Debugging GitHub Secrets..."
-          echo "CONFLUENCE_USER=${{ secrets.CONFLUENCE_USER }}"
-          echo "CONFLUENCE_API_TOKEN=${{ secrets.CONFLUENCE_API_TOKEN }}" | sed 's/./*/g' # Mask token
+          echo "Checking available commands..."
+          which base64 || echo "ERROR: base64 command not found!"
+          which curl || echo "ERROR: curl command not found!"
+          which jq || echo "ERROR: jq command not found!"
 
-      - name: Test Authentication with Confluence API
+      - name: Debug Inputs
         run: |
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -u "${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}" \
-            -X GET "https://englebertltd.atlassian.net/wiki/rest/api/space/Clients")
+          echo "Client Name: ${{ github.event.inputs.clientName }}"
+          echo "Image Data Length: $(echo -n '${{ github.event.inputs.imageData }}' | wc -c)"
+          echo "Image Data Preview: $(echo -n '${{ github.event.inputs.imageData }}' | head -c 100)..."
 
-          if [[ "$RESPONSE" -ne 200 ]]; then
-            echo "🚨 Confluence API authentication failed! Received HTTP status $RESPONSE"
-            exit 1
-          else
-            echo "✅ Confluence API authentication successful!"
-          fi
+      - name: Encode Confluence Auth
+        run: |
+          AUTH_HEADER=$(echo -n "${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}" | base64 | tr -d '\n')
+          echo "AUTH_HEADER=$AUTH_HEADER" >> $GITHUB_ENV
 
-      - name: Decode Image and Save Estimate to Confluence
+      - name: Send Data to Confluence
         run: |
           CLIENT_NAME="${{ github.event.inputs.clientName }}"
           IMAGE_DATA="${{ github.event.inputs.imageData }}"
 
-          echo "🚀 Sending Estimate to Confluence for Client: $CLIENT_NAME"
-
-          # Create JSON payload
-          JSON_PAYLOAD=$(jq -n --arg title "Fee Estimate - $CLIENT_NAME" \
-            --arg space "Clients" \
-            --arg body "<h1>Fee Estimate</h1><p>Client: $CLIENT_NAME</p><p><img src='data:image/png;base64,$IMAGE_DATA' alt='Estimate Screenshot'></p>" \
-            '{
+          echo "Sending request to Confluence..."
+          RESPONSE=$(curl -s -o response.json -w "%{http_code}" -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
+            -H "Authorization: Basic $AUTH_HEADER" \
+            -H "Content-Type: application/json" \
+            --data '{
               "type": "page",
-              "title": $title,
-              "ancestors": [{"id": 182911020}],
-              "space": {"key": $space},
+              "title": "Fee Estimate - '"$CLIENT_NAME"'",
+              "ancestors": [{ "id": "182911020" }],
+              "space": { "key": "Clients" },
               "body": {
                 "storage": {
-                  "value": $body,
+                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src='"$IMAGE_DATA"' alt='Estimate Screenshot'></p>",
                   "representation": "storage"
                 }
               }
             }')
 
-          # Send request to Confluence API
-          RESPONSE=$(curl -s -o response.json -w "%{http_code}" -X POST \
-            "https://englebertltd.atlassian.net/wiki/rest/api/content" \
-            -H "Authorization: Basic $(echo -n "${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}" | openssl base64 -A)" \
-            -H "Content-Type: application/json" \
-            --data "$JSON_PAYLOAD")
+          echo "HTTP Response Code: $RESPONSE"
+          cat response.json
 
-          if [[ "$RESPONSE" -ne 200 ]]; then
-            echo "🚨 Confluence API request failed! HTTP Status: $RESPONSE"
-            cat response.json
+          if [[ "$RESPONSE" -ne 200 && "$RESPONSE" -ne 201 ]]; then
+            echo "ERROR: Failed to create page on Confluence!"
             exit 1
-          else
-            echo "✅ Successfully created Confluence page!"
           fi
+
+      - name: Cleanup
+        run: rm -f response.json
