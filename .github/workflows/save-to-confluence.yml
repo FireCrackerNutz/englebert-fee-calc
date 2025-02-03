@@ -1,4 +1,4 @@
-name: Process Fee Estimate and Save to Confluence
+name: Save Estimate to Confluence
 
 on:
   issues:
