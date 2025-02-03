@@ -1,14 +1,8 @@
 name: Save Estimate to Confluence
 
 on:
-  workflow_dispatch:
-    inputs:
-      clientName:
-        description: "Client Name"
-        required: true
-      imageData:
-        description: "Base64 Image Data"
-        required: true
+  issues:
+    types: [opened]  # 🚀 This triggers the workflow when a new GitHub Issue is created
 
 jobs:
   save-to-confluence:
@@ -18,19 +12,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Curl (Ensure it's available)
+      - name: Install Curl
         run: sudo apt-get update && sudo apt-get install -y curl jq
 
-      - name: Debug Environment Variables
+      - name: Extract GitHub Issue Data
         run: |
-          echo "CLIENT_NAME=${{ github.event.inputs.clientName }}"
-          echo "IMAGE_DATA length: ${#IMAGE_DATA}"
+          CLIENT_NAME=$(echo '${{ github.event.issue.title }}' | sed 's/Estimate Request - //')
+          IMAGE_DATA=$(echo '${{ github.event.issue.body }}' | sed 's/```//g')
+
+          echo "Extracted Client Name: $CLIENT_NAME"
+          echo "Extracted Image Data Length: ${#IMAGE_DATA}"
 
       - name: Send Data to Confluence
         run: |
-          CLIENT_NAME="${{ github.event.inputs.clientName }}"
-          IMAGE_DATA="${{ github.event.inputs.imageData }}"
-          GHUB_PAT="${{ secrets.GHUB_PAT }}"  # ✅ Use GitHub Secret
+          CLIENT_NAME=$(echo '${{ github.event.issue.title }}' | sed 's/Estimate Request - //')
+          IMAGE_DATA=$(echo '${{ github.event.issue.body }}' | sed 's/```//g')
 
           echo "Sending request to Confluence..."
 
@@ -51,13 +47,9 @@ jobs:
             }')
 
           echo "HTTP Response Code: $RESPONSE"
-          echo "Confluence API Response:"
           cat response.json || echo "No response file found"
 
           if [[ "$RESPONSE" -ne 200 && "$RESPONSE" -ne 201 ]]; then
             echo "ERROR: Failed to create page on Confluence!"
             exit 1
           fi
-
-      - name: Debug Confluence Response
-        run: cat response.json || echo "No response file found"
