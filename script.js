@@ -22,12 +22,12 @@ document.addEventListener("DOMContentLoaded", function () {
             (baseline * (webIncrement + emailIncrement)) +
             (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
 
-        const totalFee = fee * 1.10; // Add 10%
+        const totalFee = fee * 1.10; // Add 10% surcharge
 
         document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
     });
 
-    // 🚀 Save to Confluence Button Logic
+    // 🚀 Save to Confluence Button Logic (via GitHub Issues)
     const saveButton = document.getElementById("save-to-confluence");
     if (!saveButton) {
         console.error("Save to Confluence button not found!");
@@ -46,18 +46,17 @@ document.addEventListener("DOMContentLoaded", function () {
         html2canvas(document.body).then(canvas => {
             const imageData = canvas.toDataURL("image/png");
 
-            console.log("Captured Screenshot - Sending to GitHub Issues...");
+            console.log("Captured Screenshot - Creating GitHub Issue...");
 
             fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/issues", {
                 method: "POST",
                 headers: {
                     "Accept": "application/vnd.github.v3+json",
-                    "Authorization": "token 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",  // 🔥 Directly inserting GitHub PAT here
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     title: `New Fee Estimate for ${clientName}`,
-                    body: `### Client Name: ${clientName}\n![Screenshot](${imageData})\n\nEstimate created via automated script.`
+                    body: `### Client Name: ${clientName}\n\n![Screenshot](${imageData})\n\nEstimate created via automated script.`
                 })
             })
             .then(response => {
@@ -78,9 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
-
-// Popup logic
+// Popup logic for risk categories
 const infoButton = document.getElementById("info-button");
 const overlay = document.createElement("div");
 overlay.id = "overlay";
@@ -182,6 +179,11 @@ document.body.appendChild(popup);
 infoButton.addEventListener("click", () => {
     overlay.style.display = "block";
     popup.style.display = "block";
+});
+
+overlay.addEventListener("click", () => {
+    overlay.style.display = "none";
+    popup.style.display = "none";
 });
 
 overlay.addEventListener("click", () => {
