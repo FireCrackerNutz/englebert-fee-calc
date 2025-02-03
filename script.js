@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: "POST",
                 headers: {
                     "Accept": "application/vnd.github.v3+json",
-                    "Authorization": "token YOUR_GITHUB_PAT_HERE",  // 🔥 Directly inserting GitHub PAT here
+                    "Authorization": "token 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",  // 🔥 Directly inserting GitHub PAT here
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
