@@ -1,8 +1,8 @@
-name: Save Estimate to Confluence
+name: Process Fee Estimate and Save to Confluence
 
 on:
   issues:
-    types: [opened]  # 🚀 This triggers the workflow when a new GitHub Issue is created
+    types: [opened]
 
 jobs:
   save-to-confluence:
@@ -12,24 +12,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Curl
-        run: sudo apt-get update && sudo apt-get install -y curl jq
-
-      - name: Extract GitHub Issue Data
+      - name: Extract Issue Data
+        id: extract
         run: |
-          CLIENT_NAME=$(echo '${{ github.event.issue.title }}' | sed 's/Estimate Request - //')
-          IMAGE_DATA=$(echo '${{ github.event.issue.body }}' | sed 's/```//g')
-
-          echo "Extracted Client Name: $CLIENT_NAME"
-          echo "Extracted Image Data Length: ${#IMAGE_DATA}"
+          echo "CLIENT_NAME=$(echo '${{ github.event.issue.title }}' | sed 's/New Fee Estimate for //')" >> $GITHUB_ENV
+          echo "IMAGE_DATA=$(echo '${{ github.event.issue.body }}' | grep -oP '(?<=!\[Screenshot]\().*?(?=\))')" >> $GITHUB_ENV
 
       - name: Send Data to Confluence
         run: |
-          CLIENT_NAME=$(echo '${{ github.event.issue.title }}' | sed 's/Estimate Request - //')
-          IMAGE_DATA=$(echo '${{ github.event.issue.body }}' | sed 's/```//g')
+          CLIENT_NAME="${{ env.CLIENT_NAME }}"
+          IMAGE_URL="${{ env.IMAGE_DATA }}"
+
+          if [[ -z "$IMAGE_URL" ]]; then
+            echo "ERROR: Image URL is missing!"
+            exit 1
+          fi
 
           echo "Sending request to Confluence..."
-
           RESPONSE=$(curl -s -o response.json -w "%{http_code}" -X POST "https://englebertltd.atlassian.net/wiki/rest/api/content" \
             -H "Authorization: Basic $(echo -n '${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}' | base64)" \
             -H "Content-Type: application/json" \
@@ -40,7 +39,7 @@ jobs:
               "space": { "key": "Clients" },
               "body": {
                 "storage": {
-                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src='"$IMAGE_DATA"' alt='Estimate Screenshot'></p>",
+                  "value": "<h1>Fee Estimate</h1><p>Client: '"$CLIENT_NAME"'</p><p><img src='"$IMAGE_URL"' alt='Estimate Screenshot'></p>",
                   "representation": "storage"
                 }
               }
