@@ -3,24 +3,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Script loaded and ready!");
 
-    document.getElementById("calculate-fee").addEventListener("click", function () {
-        const baseline = parseFloat(document.getElementById("tokens").value);
-        const riskMultiplier = parseFloat(document.getElementById("risk-profile").value);
-        const webIncrement = parseFloat(document.getElementById("web-app").value);
-        const emailIncrement = parseFloat(document.getElementById("emails").value);
-        const socialsPresenceIncrement = parseFloat(document.getElementById("socials-presence").value);
-        const socialsVolumeIncrement = parseFloat(document.getElementById("socials-volume").value);
-
-        const fee =
-            (baseline * riskMultiplier) +
-            (baseline * (webIncrement + emailIncrement)) +
-            (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
-
-        const totalFee = fee * 1.10; // Add 10%
-
-        document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
-    });
-
     document.getElementById("save-to-confluence").addEventListener("click", function () {
         console.log("Save to Confluence button clicked!");
 
@@ -34,22 +16,18 @@ document.addEventListener("DOMContentLoaded", function () {
         html2canvas(document.body).then(canvas => {
             const imageData = canvas.toDataURL("image/png");
 
-            console.log("Captured Screenshot - Sending to GitHub Actions...");
+            console.log("Captured Screenshot - Sending to GitHub Issues...");
 
-            // ✅ Trigger GitHub Actions using GHUB_PAT for authentication
-            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/actions/workflows/save-to-confluence.yml/dispatches", {
+            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/issues", {
                 method: "POST",
                 headers: {
                     "Accept": "application/vnd.github.v3+json",
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${GHUB_PAT}`  // ✅ Include GHUB_PAT in Authorization
+                    "Authorization": "Bearer YOUR_GITHUB_PAT" // 🔹 Replace with your GitHub PAT
                 },
                 body: JSON.stringify({
-                    ref: "main",
-                    inputs: {
-                        clientName: clientName,
-                        imageData: imageData
-                    }
+                    title: `Estimate Request - ${clientName}`,
+                    body: `\`\`\`${imageData}\`\`\``,
                 })
             })
             .then(response => {
@@ -59,8 +37,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(data => {
-                console.log("GitHub Actions Response:", data);
-                alert("Estimate sent to Confluence workflow!");
+                console.log("GitHub Issue Created:", data);
+                alert("Estimate request sent to Confluence workflow!");
             })
             .catch(error => {
                 console.error("Error:", error);
