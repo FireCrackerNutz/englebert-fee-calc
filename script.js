@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: "POST",
                 headers: {
                     "Accept": "application/vnd.github.v3+json",
+                    "Authorization": "token YOUR_GITHUB_PAT_HERE",  // 🔥 Directly inserting GitHub PAT here
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
