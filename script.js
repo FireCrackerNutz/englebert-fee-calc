@@ -3,11 +3,41 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Script loaded and ready!");
 
-    document.getElementById("save-to-confluence").addEventListener("click", function () {
+    // 🚀 Calculate Fee Button Logic
+    document.getElementById("calculate-fee").addEventListener("click", function () {
+        const baseline = parseFloat(document.getElementById("tokens").value);
+        const riskMultiplier = parseFloat(document.getElementById("risk-profile").value);
+        const webIncrement = parseFloat(document.getElementById("web-app").value);
+        const emailIncrement = parseFloat(document.getElementById("emails").value);
+        const socialsPresenceIncrement = parseFloat(document.getElementById("socials-presence").value);
+        const socialsVolumeIncrement = parseFloat(document.getElementById("socials-volume").value);
+
+        if (isNaN(baseline) || isNaN(riskMultiplier) || isNaN(webIncrement) || isNaN(emailIncrement) || isNaN(socialsPresenceIncrement) || isNaN(socialsVolumeIncrement)) {
+            alert("Please enter valid numeric values.");
+            return;
+        }
+
+        const fee =
+            (baseline * riskMultiplier) +
+            (baseline * (webIncrement + emailIncrement)) +
+            (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
+
+        const totalFee = fee * 1.10; // Add 10%
+
+        document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
+    });
+
+    // 🚀 Save to Confluence Button Logic
+    const saveButton = document.getElementById("save-to-confluence");
+    if (!saveButton) {
+        console.error("Save to Confluence button not found!");
+        return;
+    }
+
+    saveButton.addEventListener("click", function () {
         console.log("Save to Confluence button clicked!");
 
         const clientName = document.getElementById("client-name").value.trim();
-
         if (!clientName) {
             alert("Please enter a Client Name before saving to Confluence.");
             return;
@@ -22,12 +52,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: "POST",
                 headers: {
                     "Accept": "application/vnd.github.v3+json",
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer YOUR_GITHUB_PAT" // 🔹 Replace with your GitHub PAT
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    title: `Estimate Request - ${clientName}`,
-                    body: `\`\`\`${imageData}\`\`\``,
+                    title: `New Fee Estimate for ${clientName}`,
+                    body: `### Client Name: ${clientName}\n![Screenshot](${imageData})\n\nEstimate created via automated script.`
                 })
             })
             .then(response => {
@@ -38,11 +67,11 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("GitHub Issue Created:", data);
-                alert("Estimate request sent to Confluence workflow!");
+                alert("Estimate sent to GitHub Issues. It will be processed automatically!");
             })
             .catch(error => {
                 console.error("Error:", error);
-                alert("Failed to send estimate to Confluence.");
+                alert("Failed to send estimate to GitHub Issues.");
             });
         });
     });
