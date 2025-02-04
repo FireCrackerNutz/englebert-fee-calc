@@ -22,12 +22,12 @@ document.addEventListener("DOMContentLoaded", function () {
             (baseline * (webIncrement + emailIncrement)) +
             (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
 
-        const totalFee = fee * 1.10; // Add 10% surcharge
+        const totalFee = fee * 1.10; // Add 10%
 
         document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
     });
 
-    // 🚀 Save to Confluence Button Logic (via GitHub Issues)
+    // 🚀 Save to Confluence Button Logic (via AWS API Gateway)
     const saveButton = document.getElementById("save-to-confluence");
     if (!saveButton) {
         console.error("Save to Confluence button not found!");
@@ -46,36 +46,37 @@ document.addEventListener("DOMContentLoaded", function () {
         html2canvas(document.body).then(canvas => {
             const imageData = canvas.toDataURL("image/png");
 
-            console.log("Captured Screenshot - Creating GitHub Issue...");
+            console.log("Captured Screenshot - Sending to AWS API Gateway...");
 
-            fetch("https://api.github.com/repos/FireCrackerNutz/englebert-fee-calc/issues", {
+            fetch("https://h29idxjzzj.execute-api.eu-west-2.amazonaws.com", {  // 🔥 Replace with your API Gateway URL
                 method: "POST",
                 headers: {
-                    "Accept": "application/vnd.github.v3+json",
+                    "Accept": "application/json",
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    title: `New Fee Estimate for ${clientName}`,
-                    body: `### Client Name: ${clientName}\n\n![Screenshot](${imageData})\n\nEstimate created via automated script.`
+                    clientName: clientName,
+                    imageData: imageData
                 })
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`GitHub API responded with status ${response.status}`);
+                    throw new Error(`AWS API Gateway responded with status ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
-                console.log("GitHub Issue Created:", data);
-                alert("Estimate sent to GitHub Issues. It will be processed automatically!");
+                console.log("AWS API Gateway Response:", data);
+                alert("Estimate sent to AWS Lambda & Confluence workflow!");
             })
             .catch(error => {
                 console.error("Error:", error);
-                alert("Failed to send estimate to GitHub Issues.");
+                alert("Failed to send estimate to AWS API.");
             });
         });
     });
 });
+
 
 // Popup logic for risk categories
 const infoButton = document.getElementById("info-button");
