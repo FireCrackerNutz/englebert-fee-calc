@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Englebert Fee Calculator</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
-
 <body>
     <header>
         <div class="logo-container">
@@ -21,10 +19,6 @@
         </div>    
     </header>
     <form id="fee-calculator">
-        
-        <label for="client-name">Client Name:</label>
-        <input type="text" id="client-name" placeholder="Enter client name" required>
-
         <label for="tokens">Number of Cryptoassets:</label>
         <select id="tokens">
             <option value="14000">1</option>
@@ -41,6 +35,7 @@
             <label for="risk-profile">Number of Medium-High/High Risk Tokens:</label>
             <button type="button" id="info-button" class="info-button">ℹ️</button>
         </div>
+
 
         <select id="risk-profile">
             <option value="1.0">None</option>
@@ -95,21 +90,14 @@
         </select>
 
         <button type="button" id="calculate-fee">Calculate Fee</button>
-
-        <button type="button" id="save-to-confluence">Save to Confluence</button>
     </form>
-    
     <div id="result">
         <h2>Estimated Fee:</h2>
         <p id="fee-display">£0.00</p>
     </div>
-
-    
-
     <footer>
         <p>Powered by Englebert Ltd - Ensuring Trust. Empowering Growth.</p>
     </footer>
-
     <script src="script.js"></script>
 </body>
 </html>
