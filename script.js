@@ -1,84 +1,29 @@
 // script.js
 
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("Script loaded and ready!");
+// Event listener for the Calculate Fee button
+document.getElementById("calculate-fee").addEventListener("click", function() {
+    // Retrieve values from the dropdowns
+    const baseline = parseFloat(document.getElementById("tokens").value);
+    const riskMultiplier = parseFloat(document.getElementById("risk-profile").value);
+    const webIncrement = parseFloat(document.getElementById("web-app").value);
+    const emailIncrement = parseFloat(document.getElementById("emails").value);
+    const socialsPresenceIncrement = parseFloat(document.getElementById("socials-presence").value);
+    const socialsVolumeIncrement = parseFloat(document.getElementById("socials-volume").value);
 
-    // 🚀 Calculate Fee Button Logic
-    document.getElementById("calculate-fee").addEventListener("click", function () {
-        const baseline = parseFloat(document.getElementById("tokens").value);
-        const riskMultiplier = parseFloat(document.getElementById("risk-profile").value);
-        const webIncrement = parseFloat(document.getElementById("web-app").value);
-        const emailIncrement = parseFloat(document.getElementById("emails").value);
-        const socialsPresenceIncrement = parseFloat(document.getElementById("socials-presence").value);
-        const socialsVolumeIncrement = parseFloat(document.getElementById("socials-volume").value);
+    // Calculate the estimated fee
+    const fee = 
+        (baseline * riskMultiplier) +
+        (baseline * (webIncrement + emailIncrement)) +
+        (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
 
-        if (isNaN(baseline) || isNaN(riskMultiplier) || isNaN(webIncrement) || isNaN(emailIncrement) || isNaN(socialsPresenceIncrement) || isNaN(socialsVolumeIncrement)) {
-            alert("Please enter valid numeric values.");
-            return;
-        }
+    // Add 10% to the fee
+    const totalFee = fee * 1.10;
 
-        const fee =
-            (baseline * riskMultiplier) +
-            (baseline * (webIncrement + emailIncrement)) +
-            (baseline * (socialsPresenceIncrement + socialsVolumeIncrement));
-
-        const totalFee = fee * 1.10; // Add 10%
-
-        document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
-    });
-
-    // 🚀 Save to Confluence Button Logic (via AWS API Gateway)
-    const saveButton = document.getElementById("save-to-confluence");
-    if (!saveButton) {
-        console.error("Save to Confluence button not found!");
-        return;
-    }
-
-    saveButton.addEventListener("click", function () {
-        console.log("Save to Confluence button clicked!");
-
-        const clientName = document.getElementById("client-name").value.trim();
-        if (!clientName) {
-            alert("Please enter a Client Name before saving to Confluence.");
-            return;
-        }
-
-        html2canvas(document.body).then(canvas => {
-            const imageData = canvas.toDataURL("image/png");
-
-            console.log("Captured Screenshot - Sending to AWS API Gateway...");
-
-            fetch("https://h29idxjzzj.execute-api.eu-west-2.amazonaws.com", {  // 🔥 Replace with your API Gateway URL
-                method: "POST",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    clientName: clientName,
-                    imageData: imageData
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`AWS API Gateway responded with status ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("AWS API Gateway Response:", data);
-                alert("Estimate sent to AWS Lambda & Confluence workflow!");
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("Failed to send estimate to AWS API.");
-            });
-        });
-    });
+    // Update the fee display
+    document.getElementById("fee-display").innerText = `£${totalFee.toFixed(2)}`;
 });
 
-
-// Popup logic for risk categories
+// Popup logic
 const infoButton = document.getElementById("info-button");
 const overlay = document.createElement("div");
 overlay.id = "overlay";
@@ -187,6 +132,10 @@ overlay.addEventListener("click", () => {
     popup.style.display = "none";
 });
 
+document.getElementById("close-popup").addEventListener("click", () => {
+    overlay.style.display = "none";
+    popup.style.display = "none";
+});
 overlay.addEventListener("click", () => {
     overlay.style.display = "none";
     popup.style.display = "none";
